@@ -41,13 +41,14 @@ create and process a whole new set...
 ## Structure of the files here
 
 - [smp_definitions.py]() is where all the shapes are,
-  and all the tests (is it a 1C opener?), and any other utility functions.
+  and all the tests (is it a 1C opener?).
+- [generate_hands.py]() is where all the "make a bunch of hands" functions are.
 - The individual files (like [smp_1d.py]()) have a pretty simple structure:
     - Put "tweaks" at the top so they can be quickly massaged.
     - If there's any custom test, that goes next.
     - Deal accept function (which will use all the above).
     - if there's a condition that is suitable for a predeal (especially a SmartStack),
-      put it next. Remember this is a dict: {"<seat>": <condition>}
+      put it next. Remember this is a dict: {"\<seat\>": \<condition\>}
     - then make a file, and:
 
 ```python
@@ -57,14 +58,36 @@ with Path(file).open(encoding="utf-8", mode="w") as f:
         accept,  # the accept function
         predeal=predeal,  # if you have one, else None
         num_hands=int,  # default 100
-        alternate_after=int,  # if < num_hands, rotates 180 degrees every N.
+        alternate_after=int,  # if < num_hands, rotates 180 degrees every N hands.
     )
 ```
 
-- generate_and_print_hands is designed specifically for bidding tables, so
+- `generate_and_print_hands` is designed specifically for bidding tables, so
   South is dealer every hand.
-- If alternate_after, North gets to be dealer half the time.
-    - When he is, his hands
-      will match the same criteria as *South's hand* when he's dealer - and vice versa.
+- If `alternate_after`, North gets to be dealer half the time.
+    - When he is, his hands will match the same criteria as 
+      *South's hand* when he's dealer - and vice versa.
     - This simulates the effect of switching seats so that
-      "I get to open for a bit and you answer."
+      "I get to open for a bit, and you answer."
+
+- To combine several accept criteria (so that you can practise different things 
+  while not knowing which one comes up this time), you can use the Pass structure
+  and the combine_and_print_hands function:
+
+```python
+
+    passes = Pass(
+        (<accept_function_1>, <predeal_1>_or_None),
+        (<accept_function_2>, <predeal_2>_or_None),
+        ...
+    )
+
+    outputs = generate_pbn_passes(passes)
+    with Path(file).open(encoding="utf-8", mode="w") as f:
+        combine_and_print_hands(
+            f, 
+            outputs, 
+            randomize=bool,  # if False, print in order.  if True, shuffle before printing
+            alternate_after=int  # if < num_hands, rotates 180 degrees every N hands.
+        )
+```
