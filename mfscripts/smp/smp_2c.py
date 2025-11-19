@@ -4,7 +4,9 @@ import sys
 from pathlib import Path
 
 from redeal import Deal, Hand, SmartStack, hcp
-from smp_definitions import generate_and_print_hands, two_clubs_shape
+
+from generate_hands import generate_and_print_hands
+from smp_definitions import two_clubs_shape
 
 # TWEAK HERE
 # Set this true if the hands should be 2C-2D, False if any response allowed

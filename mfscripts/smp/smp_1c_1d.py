@@ -3,18 +3,20 @@
 import sys
 from pathlib import Path
 
-from redeal import Deal, Hand, hcp
-from smp_definitions import (
-    balanced_no_5cM,
-    four_card_major,
-    generate_and_print_hands,
-    one_club_opener,
-    one_diamond_response_sc,
-)
+from redeal import Deal, Hand, balanced, hcp
+
+from generate_hands import generate_and_print_hands
+from smp_definitions import four_card_major, one_club_opener
 
 # TWEAK HERE
-REBID_1M = False  # if the hands should be 1C-1D; 1M, or 1C-1D; any
+REBID_1M = True  # if the hands should be 1C-1D; 1M, or 1C-1D; any
 DEBUG = True
+
+
+def strong_one_diamond_response(hand: Hand) -> bool:
+    """5-7 HCP."""
+
+    return 5 <= hcp(hand) <= 7
 
 
 def one_major_rebid(hand: Hand) -> bool:
@@ -26,12 +28,13 @@ def one_major_rebid(hand: Hand) -> bool:
     """
     gf = hcp(hand) >= 22
 
-    return not gf and not balanced_no_5cM(hand) and four_card_major(hand)
+    return not gf and not balanced(hand) and four_card_major(hand)
 
 
 def accept(deal: Deal) -> bool:
     """Accept if 1C-1D (; 1M)."""
-    if not one_club_opener(deal.south) or not one_diamond_response_sc(deal.north):
+    # if not one_club_opener(deal.south) or not one_diamond_response_sc(deal.north):
+    if not one_club_opener(deal.south) or not strong_one_diamond_response(deal.north):
         return False
     if not REBID_1M:
         return True
