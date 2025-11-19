@@ -4,7 +4,9 @@ import sys
 from pathlib import Path
 
 from redeal import Deal, Hand, Holding, Rank, Shape, SmartStack, hcp
-from smp_definitions import generate_and_print_hands, two_diamond_shape
+
+from generate_hands import generate_and_print_hands
+from smp_definitions import two_diamond_shape
 
 # TWEAK HERE
 # Set this true if the hands should be 2D-2NT, False if any response allowed

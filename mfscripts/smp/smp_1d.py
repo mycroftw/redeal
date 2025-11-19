@@ -4,10 +4,11 @@ import sys
 from pathlib import Path
 
 from redeal import Deal, Hand, balanced, hcp
+
+from generate_hands import generate_and_print_hands
 from smp_definitions import (
     five_card_major,
     four_card_major,
-    generate_and_print_hands,
     minor_lengths,
     one_diamond_opener,
 )
@@ -60,6 +61,7 @@ def accept(deal: Deal) -> bool:
     return False
 
 
-F = f"1D{"-2m" if RESP_2m else ""}.pbn"
-with Path(Path.cwd() / F).open(encoding="utf=8", mode="w") as f:
-    generate_and_print_hands(f, accept)
+if __name__ == "__main__":
+    F = f"1D{"-2m" if RESP_2m else ""}.pbn"
+    with Path(Path.cwd() / "pbn" / F).open(encoding="utf=8", mode="w") as f:
+        generate_and_print_hands(f, accept)
