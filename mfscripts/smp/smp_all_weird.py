@@ -1,65 +1,72 @@
 """Generate all "weird" hands for SMP."""
 
-from collections import defaultdict
 from pathlib import Path
-from pprint import pprint
 
+from redeal import Deal
+
+from generate_hands import Pass, combine_and_print_hands, generate_pbn_passes
 from smp_1d import two_m_response
 from smp_definitions import (
-    generate_and_print_hands,
+    ns_hcp,
     one_club_opener,
     one_diamond_opener,
     one_diamond_response_sc,
+    strong_response_sc,
     two_clubs_opener,
     two_diamonds_opener,
 )
 
-from redeal import Deal, hcp
-
 # TWEAK HERE
-ALLOW_STRONG_NON_WEIRD = True  # allow slammish hands not in the weird categories
-REQUIRE_STRONG_WEIRD = False  # only accept slammish hands in the weird categories
+ALLOW_STRONG = True  # allow slammish hands not in the weird categories
+REQUIRE_STRONG = False  # only accept slammish hands in the weird categories
 MIN_HCP_STRONG = 29
 DEBUG = True
 
 
-HAND_TYPE = defaultdict(int)
-
-
 def slammish(deal: Deal) -> bool:
     """Is slammish if HCP(NS) >= MIN_HCP_STRONG."""
-    return hcp(deal.north) + hcp(deal.south) >= MIN_HCP_STRONG
+    return ns_hcp(deal) >= MIN_HCP_STRONG
 
 
-def accept(deal: Deal) -> bool:
-    """For the various cases, accept if they're weird (and/or strong)"""
-    accepted = False  # assume wrong
-    HAND_TYPE["n_hands"] += 1
-
-    n, s = deal.north, deal.south
-    if one_club_opener(s) and (one_diamond_response_sc(n) or hcp(n) > 12):
-        accepted = True
-        HAND_TYPE["1c1d"] += 1
-    elif one_diamond_opener(s) and two_m_response(n):
-        accepted = True
-        HAND_TYPE["1d2m"] += 1
-    elif two_clubs_opener(s) or two_diamonds_opener(s):
-        accepted = True
-        HAND_TYPE["2m"] += 1
-
-    if ALLOW_STRONG_NON_WEIRD:
-        if not accepted and slammish(deal):
-            accepted = True
-            HAND_TYPE["slam"] += 1
-        return accepted
-    elif REQUIRE_STRONG_WEIRD:
-        return accepted and slammish(deal)
-    else:
-        return accepted
+def slammish_if_required(deal: Deal) -> bool:
+    """if REQUIRE_STRONG, only true if slammish.  Always True otherwise."""
+    return not REQUIRE_STRONG or slammish(deal)
 
 
+def accept_1c_1d(deal: Deal) -> bool:
+    """1C-1D, or 1C-12+"""
+    return (
+        one_club_opener(deal.south)
+        and (one_diamond_response_sc(deal.north) or strong_response_sc(deal.north))
+        and slammish_if_required(deal)
+    )
+
+
+def accept_1d_2m(deal: Deal) -> bool:
+    """1D-2m response hands."""
+    return (
+        one_diamond_opener(deal.south)
+        and two_m_response(deal.north)
+        and slammish_if_required(deal)
+    )
+
+
+def accept_2m(deal: Deal) -> bool:
+    """2C or 2D openers"""
+    return (
+        two_clubs_opener(deal.south) or two_diamonds_opener(deal.south)
+    ) and slammish_if_required(deal)
+
+
+criteria = [
+    Pass(accept_1c_1d, None),
+    Pass(accept_1d_2m, None),
+    Pass(accept_2m, None),
+]
+if ALLOW_STRONG:
+    criteria.append(Pass(slammish, None))
+
+outputs = generate_pbn_passes(criteria)
 F = "SMP_weird.pbn"
-with (Path.cwd() / F).open(encoding="utf=8", mode="w") as f:
-    generate_and_print_hands(f, accept, alternate_after=5, num_hands=40)
-if DEBUG:
-    pprint(HAND_TYPE)
+with (Path.cwd() / "pbn" / F).open(encoding="utf=8", mode="w") as f:
+    combine_and_print_hands(f, outputs, randomize=True, alternate_after=5)
