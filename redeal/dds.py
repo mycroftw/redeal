@@ -1,7 +1,6 @@
 import ctypes
 from ctypes import POINTER, Structure, byref, c_char, c_int, c_uint
 import os
-import sys
 
 from .global_defs import Card, Rank, Seat, Strain, Suit
 

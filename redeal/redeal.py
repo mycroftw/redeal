@@ -521,7 +521,7 @@ class Holding(frozenset):
     def losers(self):
         """The holding's loser count."""
         losers = 0
-        losers += (A not in self)
+        losers += (len(self) >= 1 and A not in self)
         losers += (len(self) >= 2 and K not in self)
         losers += (len(self) >= 3 and (
             (Q not in self)
