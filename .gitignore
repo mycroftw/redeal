@@ -13,4 +13,5 @@ setup.cfg
 .coverage
 .gdb_history
 
-.idea/sonarlint/
+.idea
+/mfscripts/smp/pbn/
