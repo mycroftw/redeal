@@ -63,9 +63,11 @@ def generate_and_print_hands(
 
 
 def generate_pbn_hands(criteria: Pass) -> list[str]:
-    """Generate and deal hands with constraints, return each as just the deal line in PBN.
+    """Generate and deal hands with constraints, return each as just the deal in PBN.
 
-    This is useful for later manipulation as "dealer" is always South, and nothing else is needed.
+    This can be manipulated later as "dealer" is always South so the constraints
+    always apply correctly; it is easy, say, to rotate the hand so North is dealer,
+    but "opener" will always have opener's constraints, and responder theirs.
     """
 
     Deal.set_str_style("pbn")

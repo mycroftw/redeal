@@ -4,11 +4,7 @@ from pathlib import Path
 
 from redeal import Deal, Hand, SmartStack, hcp
 
-from generate_hands import (
-    Pass,
-    combine_and_print_hands,
-    generate_pbn_passes,
-)
+from generate_hands import Pass, combine_and_print_hands, generate_pbn_passes
 from smp_1d import two_m_response
 from smp_definitions import (
     ns_hcp,
