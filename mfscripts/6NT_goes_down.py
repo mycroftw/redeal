@@ -3,7 +3,7 @@
 import collections
 import itertools
 import pprint
-from enum import StrEnum, IntEnum
+from enum import IntEnum, StrEnum
 
 from redeal import Deal, Evaluator, Shape, SmartStack, hcp
 
